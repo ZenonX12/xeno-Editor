@@ -6,6 +6,7 @@ import io
 import keyword
 import tkinter.simpledialog
 import os
+import time
 
 # ฟังก์ชันสำหรับเมนู
 def show_message():
@@ -182,7 +183,11 @@ def log_error(message):
 
 # ฟังก์ชันการอัปเดต
 def check_for_updates():
+    # Simulate checking for an update (this can be expanded to check a server later)
     messagebox.showinfo("Update", "Xeno Editor is up to date!\nVersion 1.0.0 Beta Test")
+
+    # Call check_for_updates again after 1 hour (3600000 ms)
+    root.after(3600000, check_for_updates)
 
 # สร้างหน้าต่างหลัก
 root = tk.Tk()
@@ -253,6 +258,9 @@ run_button.pack(pady=5)
 
 # ปรับปรุงเลขบรรทัดทุกครั้งที่มีการพิมพ์
 code_text.bind("<KeyRelease>", update_line_numbers)
+
+# เริ่มต้นการอัปเดต
+check_for_updates()
 
 # สร้างหน้าต่างหลักให้แสดง
 root.mainloop()
