@@ -7,15 +7,17 @@ import keyword
 import tkinter.simpledialog
 import os
 import time
-import requests  # For making HTTP requests
+import requests
+import threading
 
 # GitHub repository URL for checking updates
-GITHUB_API_URL = "https://github.com/ZenonX12/xeno-Editor"
+GITHUB_API_URL = "https://api.github.com/repos/ZenonX12/xeno-Editor/releases/latest"
+CURRENT_VERSION = "v1.0.0"  # Define the current version here
 
 # ฟังก์ชันสำหรับเมนู
 def show_message():
     messagebox.showinfo("About Xeno Editor", 
-                        "Xeno Editor\nVersion 1.1.0 Beta Test\n\nA simple text editor built with Tkinter.\nCreated by Xeno.")
+                        "Xeno Editor\nVersion 1.0.0 Beta Test\n\nA simple text editor built with Tkinter.\nCreated by Xeno.")
 
 # ฟังก์ชันสำหรับแสดงข้อความใน Text widget
 def display_code():
@@ -163,8 +165,8 @@ def auto_indent(event):
 
 # ฟังก์ชันเปลี่ยนธีม
 def toggle_theme():
-    current_bg = root.cget("bg")
-    if current_bg == "#2e2e2e":  # Dark Mode
+    current_bg = code_text.cget("bg")
+    if current_bg == "#1e1e1e":  # Dark Mode
         root.config(bg="#f5f5f5")
         code_text.config(bg="#ffffff", fg="#000000")
         line_numbers.config(bg="#f5f5f5", fg="#000000")
@@ -196,17 +198,16 @@ def check_for_updates():
         latest_version = latest_release['tag_name']  # Get the latest version (e.g., v1.0.1)
         release_url = latest_release['html_url']  # URL to the release page
 
-        current_version = "v1.1.0"  # Define your current version (should be dynamically set)
-
         # Compare versions
-        if latest_version != current_version:
+        if latest_version != CURRENT_VERSION:
             messagebox.showinfo("Update Available", 
                                 f"A new version ({latest_version}) is available! Visit {release_url} to download it.")
         else:
-            messagebox.showinfo("Update", "Xeno Editor is up to date!\nVersion 1.1.0 Beta Test")
+            messagebox.showinfo("Update", f"Xeno Editor is up to date!\nVersion {CURRENT_VERSION}")
 
     except requests.exceptions.RequestException as e:
         messagebox.showerror("Error", f"Failed to check for updates: {e}")
+        log_error(f"Failed to check for updates: {e}")
 
     # Call check_for_updates again after 1 hour (3600000 ms)
     root.after(3600000, check_for_updates)
@@ -264,31 +265,27 @@ line_numbers = tk.Text(line_numbers_frame, height=10, width=5, bg="#2e2e2e", fg=
 line_numbers.pack(side=tk.LEFT, fill=tk.Y)
 
 # เพิ่ม Text widget สำหรับการพิมพ์ข้อความใน Frame
-code_text = tk.Text(frame, wrap=tk.WORD, height=10, width=50, bg="#1e1e1e", fg="#d4d4d4", insertbackground="white", font=("Segoe UI", 10))
-code_text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+code_text = tk.Text(frame, height=15, width=80, bg="#1e1e1e", fg="#d4d4d4", font=("Courier", 12), wrap=tk.WORD)
+code_text.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
 
-# เพิ่ม Scrollbar สำหรับ Text widget
-scrollbar = tk.Scrollbar(frame, command=code_text.yview)
-scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+# ตรวจสอบว่า Text widget สามารถแก้ไขได้
+code_text.config(state=tk.NORMAL)  # ทำให้สามารถพิมพ์ได้
 
-# เชื่อมโยง Scrollbar กับ Text widget
-code_text.config(yscrollcommand=scrollbar.set)
+# เพิ่มปุ่มสำหรับ Run Code ไปที่หน้าหลัก
+run_button = tk.Button(code_tab, text="Run Code", command=run_code)
+run_button.pack(padx=10, pady=10)
 
-# สร้างปุ่ม 'Run'
-run_button = tk.Button(root, text="Run", command=run_code, bg="#4CAF50", fg="white", relief="flat", font=("Segoe UI", 12))
-run_button.pack(pady=5)
-
-# ปรับปรุงเลขบรรทัดทุกครั้งที่มีการพิมพ์
+# ตั้งค่าให้แสดงเลขบรรทัด
 code_text.bind("<KeyRelease>", update_line_numbers)
 
-# เริ่มต้นการอัปเดต
+# ตั้งค่าแสดงบรรทัดเลข
+update_line_numbers()
+
+# ตั้งค่าฟังก์ชันการย่อหน้าอัตโนมัติ
+code_text.bind("<Return>", auto_indent)
+
+# เรียกฟังก์ชันการตรวจสอบการอัปเดตครั้งแรก
 check_for_updates()
 
-# สร้างหน้าต่างหลักให้แสดง
+# เริ่มต้นการทำงานของ Tkinter
 root.mainloop()
-
-# Bind the 'Ctrl+F' key combination to the find_text function
-root.bind("<Control-f>", lambda event: find_text())
-
-# ฟังก์ชัน Auto-indent
-code_text.bind("<Return>", auto_indent)
