@@ -15,7 +15,7 @@ GITHUB_API_URL = "https://github.com/ZenonX12/xeno-Editor"
 # ฟังก์ชันสำหรับเมนู
 def show_message():
     messagebox.showinfo("About Xeno Editor", 
-                        "Xeno Editor\nVersion 1.0.0 Beta Test\n\nA simple text editor built with Tkinter.\nCreated by Xeno.")
+                        "Xeno Editor\nVersion 1.1.0 Beta Test\n\nA simple text editor built with Tkinter.\nCreated by Xeno.")
 
 # ฟังก์ชันสำหรับแสดงข้อความใน Text widget
 def display_code():
@@ -196,14 +196,14 @@ def check_for_updates():
         latest_version = latest_release['tag_name']  # Get the latest version (e.g., v1.0.1)
         release_url = latest_release['html_url']  # URL to the release page
 
-        current_version = "v1.0.0"  # Define your current version (should be dynamically set)
+        current_version = "v1.1.0"  # Define your current version (should be dynamically set)
 
         # Compare versions
         if latest_version != current_version:
             messagebox.showinfo("Update Available", 
                                 f"A new version ({latest_version}) is available! Visit {release_url} to download it.")
         else:
-            messagebox.showinfo("Update", "Xeno Editor is up to date!\nVersion 1.0.0 Beta Test")
+            messagebox.showinfo("Update", "Xeno Editor is up to date!\nVersion 1.1.0 Beta Test")
 
     except requests.exceptions.RequestException as e:
         messagebox.showerror("Error", f"Failed to check for updates: {e}")
