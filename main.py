@@ -7,6 +7,10 @@ import keyword
 import tkinter.simpledialog
 import os
 import time
+import requests  # For making HTTP requests
+
+# GitHub repository URL for checking updates
+GITHUB_API_URL = "https://github.com/ZenonX12/xeno-Editor"
 
 # ฟังก์ชันสำหรับเมนู
 def show_message():
@@ -183,8 +187,26 @@ def log_error(message):
 
 # ฟังก์ชันการอัปเดต
 def check_for_updates():
-    # Simulate checking for an update (this can be expanded to check a server later)
-    messagebox.showinfo("Update", "Xeno Editor is up to date!\nVersion 1.0.0 Beta Test")
+    try:
+        # Send a request to the GitHub API to get the latest release info
+        response = requests.get(GITHUB_API_URL)
+        response.raise_for_status()  # Raise an exception for 4xx/5xx status codes
+
+        latest_release = response.json()
+        latest_version = latest_release['tag_name']  # Get the latest version (e.g., v1.0.1)
+        release_url = latest_release['html_url']  # URL to the release page
+
+        current_version = "v1.0.0"  # Define your current version (should be dynamically set)
+
+        # Compare versions
+        if latest_version != current_version:
+            messagebox.showinfo("Update Available", 
+                                f"A new version ({latest_version}) is available! Visit {release_url} to download it.")
+        else:
+            messagebox.showinfo("Update", "Xeno Editor is up to date!\nVersion 1.0.0 Beta Test")
+
+    except requests.exceptions.RequestException as e:
+        messagebox.showerror("Error", f"Failed to check for updates: {e}")
 
     # Call check_for_updates again after 1 hour (3600000 ms)
     root.after(3600000, check_for_updates)
